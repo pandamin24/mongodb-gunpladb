@@ -4,7 +4,6 @@
 
 //dependencies
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_doguber_frontend/api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,53 +13,37 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 //files
-import '../datamodels.dart';
+import '../providers.dart';
 import '../constants.dart';
-import '../router.dart';
 
 class LogInPage extends StatelessWidget {
   const LogInPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color(0xFF005f4d),
-        body: Stack(children: [
-          Center(
-            child: Column(children: [
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(20),
-                margin: const EdgeInsets.all(20),
-                width: double.infinity,
-                child: InkWell(
-                  onTap: () => context.go(RouterPath.loginDirect),
-                  child: Image.asset('assets/images/icon_kakao_login.png'),
-                ),
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(20),
+              margin: const EdgeInsets.all(20),
+              width: double.infinity,
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const WebViewPage()));
+                },
+                child: Image.asset('assets/images/icon_kakao_login.png'),
               ),
-            ]),
-          ),
-          LayoutBuilder(builder: (context, constraints) {
-            double radius = constraints.maxWidth / 3;
-            return Stack(
-              children: [
-                Center(
-                    child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: radius,
-                )),
-                Center(
-                  child: Image.asset(
-                    'assets/images/carrotBowLogo.png',
-                    width: radius,
-                    height: radius,
-                  ),
-                ),
-              ],
-            );
-          }),
-        ]),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {context.go('/home')},
+        child: const Text('dev\nhome'),
       ),
     );
   }
@@ -100,7 +83,7 @@ class _WebViewPageState extends State<WebViewPage> {
     _webViewController.addJavaScriptChannel(
       'tokenHandler',
       onMessageReceived: (JavaScriptMessage message) async {
-        await _authApi.logIn(message: message);
+        _authApi.logIn(message: message);
         await context.read<UserInfo>().updateMyProfile().then((_) {
           debugPrint('[log] login success!');
           context.go('/home');
@@ -117,7 +100,7 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SafeArea(child: WebViewWidget(controller: _webViewController)),
+      home: WebViewWidget(controller: _webViewController),
     );
   }
 }
